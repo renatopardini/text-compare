@@ -1,69 +1,83 @@
-import Image from "next/image";
+"use client";
+
+import { useState } from "react";
+import { diffRows, type Row, type Side } from "@/lib/diffRows";
+
+const textareaClass =
+  "h-72 w-full resize-y rounded border border-zinc-300 bg-white p-3 font-mono text-sm outline-none focus:border-blue-500 dark:border-zinc-700 dark:bg-zinc-900";
+const buttonClass = "rounded border border-zinc-300 px-4 py-2 text-sm hover:bg-zinc-100 dark:border-zinc-700 dark:hover:bg-zinc-800";
+
+function Cells({ side, kind, changed }: { side: Side; kind: "del" | "add"; changed: boolean }) {
+  if (!side) return <td colSpan={2} className="bg-zinc-100 dark:bg-zinc-800/50" />;
+  const line = !changed ? "" : kind === "del" ? "bg-red-50 dark:bg-red-950/40" : "bg-green-50 dark:bg-green-950/40";
+  const word = kind === "del" ? "bg-red-300 dark:bg-red-800" : "bg-green-300 dark:bg-green-800";
+  return (
+    <>
+      <td className={`select-none px-2 text-right align-top text-zinc-400 ${line}`}>{side.num}</td>
+      <td className={`whitespace-pre-wrap break-all px-2 align-top ${line}`}>
+        {side.parts.map((p, i) => (p.changed ? <mark key={i} className={`${word} text-inherit`}>{p.value}</mark> : p.value))}
+      </td>
+    </>
+  );
+}
 
 export default function Home() {
+  const [left, setLeft] = useState("");
+  const [right, setRight] = useState("");
+  const [rows, setRows] = useState<Row[] | null>(null);
+
+  const changed = rows?.filter((r) => r.type === "changed") ?? [];
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+    <main className="mx-auto w-full max-w-7xl flex-1 p-4 sm:p-6">
+      <h1 className="text-2xl font-semibold">Comparar textos</h1>
+      <p className="mb-4 text-sm text-zinc-500">A comparação roda no seu navegador. Nenhum texto é enviado a servidor algum.</p>
+
+      <div className="grid gap-4 md:grid-cols-2">
+        <label className="flex flex-col gap-1 text-sm font-medium">
+          Texto original
+          <textarea className={textareaClass} value={left} onChange={(e) => setLeft(e.target.value)} spellCheck={false} />
+        </label>
+        <label className="flex flex-col gap-1 text-sm font-medium">
+          Texto alterado
+          <textarea className={textareaClass} value={right} onChange={(e) => setRight(e.target.value)} spellCheck={false} />
+        </label>
+      </div>
+
+      <div className="my-4 flex flex-wrap gap-2">
+        <button className="rounded bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700" onClick={() => setRows(diffRows(left, right))}>
+          Comparar
+        </button>
+        <button className={buttonClass} onClick={() => { setLeft(right); setRight(left); setRows(null); }}>
+          Inverter
+        </button>
+        <button className={buttonClass} onClick={() => { setLeft(""); setRight(""); setRows(null); }}>
+          Limpar
+        </button>
+      </div>
+
+      {rows && (changed.length === 0 ? (
+        <p className="rounded bg-green-100 p-3 text-green-900 dark:bg-green-900/40 dark:text-green-200">Os textos são idênticos.</p>
+      ) : (
+        <>
+          <p className="mb-2 text-sm text-zinc-500">
+            {changed.filter((r) => r.left).length} linha(s) removida(s) ou alterada(s) · {changed.filter((r) => r.right).length} linha(s) adicionada(s) ou alterada(s)
           </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+          <div className="overflow-x-auto rounded border border-zinc-300 dark:border-zinc-700">
+            <table className="w-full table-fixed border-collapse font-mono text-sm">
+              <colgroup><col className="w-12" /><col /><col className="w-12 border-l border-zinc-300 dark:border-zinc-700" /><col /></colgroup>
+              <tbody>
+                {rows.map((r, i) => (
+                  <tr key={i} className="border-b border-zinc-100 last:border-0 dark:border-zinc-800">
+                    <Cells side={r.left} kind="del" changed={r.type === "changed"} />
+                    <Cells side={r.right} kind="add" changed={r.type === "changed"} />
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      ))}
+    </main>
   );
 }

@@ -3,12 +3,17 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "next dev -H 127.0.0.1",
     "build": "next build",
-    "start": "next start",
-    "lint": "eslint"
+    "start": "next start -H 127.0.0.1",
+    "lint": "eslint",
+    "test": "node --test src/lib/diffRows.test.mjs",
+    "build:static": "next build",
+    "desktop": "npm run build:static && electron .",
+    "dist": "npm run build:static && electron-builder --win portable"
   },
   "dependencies": {
+    "diff": "^9.0.0",
     "next": "16.4.6",
     "react": "19.3.0",
     "react-dom": "19.3.0"
@@ -18,9 +23,50 @@
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "electron": "^45.3.4",
+    "electron-builder": "^26.18.0",
     "eslint": "^9",
     "eslint-config-next": "16.4.6",
     "tailwindcss": "4.3.3",
     "typescript": "^5"
+  },
+  "overrides": {
+    "app-builder-lib": {
+      "minimatch": "^11.0.1"
+    },
+    "@electron/universal": {
+      "minimatch": "^11.0.1"
+    }
+  },
+  "main": "electron/main.mjs",
+  "build": {
+    "appId": "local.textcompare",
+    "productName": "Comparar Textos",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "electron/**",
+      "out/**",
+      "package.json",
+      "!node_modules/**"
+    ],
+    "win": {
+      "target": "portable"
+    },
+    "portable": {
+      "artifactName": "CompararTextos-${version}-portable.exe"
+    }
+  },
+  "description": "Comparação de textos lado a lado com destaque por palavra, 100% local: web ou app desktop portátil.",
+  "author": "Renato Pardini",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/renatopardini/text-compare.git"
+  },
+  "homepage": "https://github.com/renatopardini/text-compare#readme",
+  "bugs": {
+    "url": "https://github.com/renatopardini/text-compare/issues"
   }
 }
