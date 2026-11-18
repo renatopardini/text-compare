@@ -1,8 +1,18 @@
 @import "tailwindcss";
 
+/* dark: segue o atributo data-theme no <html> (definido pelo script do layout e pelo seletor de tema) */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -10,11 +20,10 @@
   --color-foreground: var(--foreground);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Reserva o espaço da barra de rolagem desde o início: quando o resultado aparece, a largura não muda
+   e o navegador não precisa refazer a quebra de linha de textos enormes nos campos. */
+html {
+  scrollbar-gutter: stable;
 }
 
 body {

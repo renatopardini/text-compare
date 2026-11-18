@@ -1,18 +1,22 @@
 {
   "name": "text-compare",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "private": true,
   "scripts": {
     "dev": "next dev -H 127.0.0.1",
     "build": "next build",
     "start": "next start -H 127.0.0.1",
     "lint": "eslint",
-    "test": "node --test src/lib/diffRows.test.mjs",
+    "test": "node --test src/lib/*.test.mjs",
     "build:static": "next build",
     "desktop": "npm run build:static && electron .",
-    "dist": "npm run build:static && electron-builder --win portable"
+    "dist": "npm run build:static && electron-builder --win portable --publish never",
+    "dist:linux": "npm run build:static && electron-builder --linux AppImage --publish never",
+    "smoke": "node scripts/smoke.mjs",
+    "screenshots": "node scripts/screenshots.mjs"
   },
   "dependencies": {
+    "@tanstack/react-virtual": "^3.14.26",
     "diff": "^9.0.0",
     "next": "16.4.6",
     "react": "19.3.0",
@@ -56,6 +60,13 @@
     },
     "portable": {
       "artifactName": "CompararTextos-${version}-portable.exe"
+    },
+    "linux": {
+      "target": "AppImage",
+      "category": "Utility"
+    },
+    "appImage": {
+      "artifactName": "CompararTextos-${version}-${arch}.AppImage"
     }
   },
   "description": "Comparação de textos lado a lado com destaque por palavra, 100% local: web ou app desktop portátil.",

@@ -1,0 +1,46 @@
+# Uma tag v* (ex.: v0.2.0) gera a Release com o .exe portátil (Windows) e o .AppImage (Linux).
+name: release
+on:
+  push:
+    tags: ["v*"]
+permissions:
+  contents: write
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - run: npm test
+      - run: npm run lint
+  build:
+    needs: check
+    strategy:
+      matrix:
+        include:
+          - { os: windows-latest, script: dist }
+          - { os: ubuntu-latest, script: "dist:linux" }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 24, cache: npm }
+      - run: npm ci
+      - run: npm run ${{ matrix.script }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: app-${{ matrix.os }}
+          path: |
+            dist/*.exe
+            dist/*.AppImage
+          if-no-files-found: error
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with: { path: artifacts, merge-multiple: true }
+      - env: { GH_TOKEN: "${{ github.token }}" }
+        run: gh release create "$GITHUB_REF_NAME" artifacts/* --repo "$GITHUB_REPOSITORY" --title "$GITHUB_REF_NAME" --generate-notes
