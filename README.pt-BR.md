@@ -2,7 +2,9 @@
 
 [🇺🇸 English](README.md) | 🇧🇷 Português
 
-# 🔍 Comparar Textos
+<img src="src/app/icon.svg" width="96" alt="">
+
+# Comparar Textos
 
 ### Veja em segundos o que mudou entre duas versões de um texto, sem enviar nada para a internet.
 

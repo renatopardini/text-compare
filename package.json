@@ -56,14 +56,16 @@
       "!node_modules/**"
     ],
     "win": {
-      "target": "portable"
+      "target": "portable",
+      "icon": "electron/icon.png"
     },
     "portable": {
       "artifactName": "CompararTextos-${version}-portable.exe"
     },
     "linux": {
       "target": "AppImage",
-      "category": "Utility"
+      "category": "Utility",
+      "icon": "electron/icon.png"
     },
     "appImage": {
       "artifactName": "CompararTextos-${version}-${arch}.AppImage"

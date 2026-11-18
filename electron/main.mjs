@@ -26,6 +26,7 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1280,
     height: 860,
+    icon: path.join(app.getAppPath(), "electron", "icon.png"),
     autoHideMenuBar: true,
     webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true },
   });
